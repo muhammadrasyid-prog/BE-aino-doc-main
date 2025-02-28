@@ -212,24 +212,36 @@ func GetOlderTimelineHistorySuperAdmin(c echo.Context) error {
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil || limit <= 0 {
 		limit = 3 // Default limit
+		// Kirim pesan error bahwa limit tidak valid, tetapi tetap lanjutkan eksekusi
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"code":    400,
+			"message": "Invalid limit parameter, using default value",
+			"status":  false,
+			"data": map[string]interface{}{
+				"limit": limit, // Nilai default yang digunakan
+			},
+		})
 	}
 
 	offsetStr := c.QueryParam("offset")
 	offset, err := strconv.Atoi(offsetStr)
 	if err != nil || offset < 0 {
 		offset = 0 // Default offset
+		// Kirim pesan error bahwa offset tidak valid, tetapi tetap lanjutkan eksekusi
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"code":    400,
+			"message": "Invalid offset parameter, using default value",
+			"status":  false,
+			"data": map[string]interface{}{
+				"offset": offset, // Nilai default yang digunakan
+			},
+		})
 	}
 
-	// Ambil older timeline dari service
-	history, err := service.GetOlderTimelineHistorySuperAdmin(db.DB, limit, offset)
+	// Lanjutkan dengan logika aplikasi Anda
+	// Contoh: Query database dengan limit dan offset yang sudah diatur
+	results, err := service.GetOlderTimelineHistorySuperAdmin(db.DB, limit, offset)
 	if err != nil {
-		if err.Error() == "no other data" {
-			// Jika tidak ada data lagi, kembalikan response 200 dengan pesan
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"message": "no other data",
-				"status":  true,
-			})
-		}
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"code":    500,
 			"message": "Gagal mengambil data history lama",
@@ -237,7 +249,29 @@ func GetOlderTimelineHistorySuperAdmin(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, history)
+	// Jika results kosong, return 200 dengan pesan "no other data"
+	if len(results) == 0 {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"code":    200,
+			"message": "no other data",
+			"status":  true,
+			"data": map[string]interface{}{
+				"result": []models.TimelineHistory{}, // Data kosong
+			},
+		})
+	}
+
+	// Kembalikan hasil query
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"code":    200,
+		"message": "Success",
+		"status":  true,
+		"data": map[string]interface{}{
+			"limit":  limit,  // Nilai limit yang digunakan
+			"offset": offset, // Nilai offset yang digunakan
+			"result": results,
+		},
+	})
 }
 
 func GetOlderTimelineHistoryAdmin(c echo.Context) error {

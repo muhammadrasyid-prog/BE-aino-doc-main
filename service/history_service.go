@@ -200,6 +200,10 @@ func GetDocumentCountPerMonthSuperAdmin(db *sql.DB, year int) ([]models.MonthlyD
 		counts = append(counts, count)
 	}
 
+	if counts == nil {
+		return []models.MonthlyDocumentCount{}, nil
+	}
+
 	return counts, nil
 }
 
@@ -231,6 +235,10 @@ func GetDocumentCountPerMonthAdmin(db *sql.DB, year int, divisionCode string) ([
 			return nil, err
 		}
 		counts = append(counts, count)
+	}
+
+	if counts == nil {
+		return []models.MonthlyDocumentCount{}, nil
 	}
 
 	return counts, nil
@@ -267,6 +275,10 @@ func GetDocumentStatusCountPerMonthSuperAdmin(db *sql.DB, year, month int) ([]mo
 		statusCounts = append(statusCounts, statusCount)
 	}
 
+	if statusCounts == nil {
+		return []models.DocumentStatusCount{}, nil
+	}
+
 	return statusCounts, nil
 }
 
@@ -299,6 +311,10 @@ func GetDocumentStatusCountPerMonthAdmin(db *sql.DB, year, month int, divisionCo
 			return nil, err
 		}
 		statusCounts = append(statusCounts, statusCount)
+	}
+
+	if statusCounts == nil {
+		return []models.DocumentStatusCount{}, nil
 	}
 
 	return statusCounts, nil
