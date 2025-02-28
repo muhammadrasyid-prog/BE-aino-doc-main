@@ -7,7 +7,6 @@ import (
 
 // Struktur untuk merepresentasikan data history timeline
 type TimelineHistory struct {
-	// FormID       uint           `json:"form_id" db:"form_id"`
 	FormUUID     string         `json:"form_uuid" db:"form_uuid"`
 	FormNumber   string         `json:"form_number,omitempty" db:"form_number"`
 	FormTicket   string         `json:"form_ticket,omitempty" db:"form_ticket"`
@@ -20,4 +19,14 @@ type TimelineHistory struct {
 	CreatedAt    time.Time      `json:"created_at" db:"created_at"`
 	UpdatedBy    sql.NullString `json:"updated_by,omitempty" db:"updated_by"`
 	UpdatedAt    sql.NullTime   `json:"updated_at,omitempty" db:"updated_at"`
+}
+
+type MonthlyDocumentCount struct {
+	Month string `json:"month" db:"month"`
+	Count int    `json:"count" db:"count"`
+}
+
+type DocumentStatusCount struct {
+	Status string `json:"status" db:"form_status"`
+	Count  int    `json:"count" db:"count"`
 }

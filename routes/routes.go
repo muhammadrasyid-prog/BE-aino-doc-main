@@ -164,10 +164,14 @@ func Route() *echo.Echo {
 	e.GET("/tour/steps/:tour_name", controller.GetTourWithStepsByName)
 
 	// Timeline history routes untuk superadmin dan admin
-	superAdmin.GET("/timeline/recent", controller.GetRecentTimelineHistory)
-	superAdmin.GET("/timeline/older", controller.GetOlderTimelineHistory)
-	adminGroup.GET("/timeline/recent", controller.GetRecentTimelineHistory)
-	adminGroup.GET("/timeline/older", controller.GetOlderTimelineHistory)
+	superAdmin.GET("/timeline/recent", controller.GetRecentTimelineHistorySuperAdmin)
+	superAdmin.GET("/timeline/older", controller.GetOlderTimelineHistorySuperAdmin)
+	superAdmin.GET("/timeline/documents-per-month", controller.GetDocumentCountPerMonthSuperAdmin)
+	superAdmin.GET("/timeline/documents-status", controller.GetDocumentStatusCountPerMonthHandlerSuperAdmin)
+	adminGroup.GET("/timeline/recent", controller.GetRecentTimelineHistoryAdmin)
+	adminGroup.GET("/timeline/older", controller.GetOlderTimelineHistoryAdmin)
+	adminGroup.GET("/timeline/documents-per-month", controller.GetDocumentCountPerMonthAdmin)
+	adminGroup.GET("/timeline/documents-status", controller.GetDocumentStatusCountPerMonthHandlerAdmin)
 
 	return e
 }
