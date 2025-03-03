@@ -319,3 +319,82 @@ func GetDocumentStatusCountPerMonthAdmin(db *sql.DB, year, month int, divisionCo
 
 	return statusCounts, nil
 }
+
+func GetFormCountPerDocumentPerMonthSuperAdmin(db *sql.DB, year int, month int) ([]models.MonthlyFormCount, error) {
+	query := `
+		SELECT  
+			d.document_name AS document_name, 
+			EXTRACT(MONTH FROM f.created_at) AS month,
+			COUNT(f.form_id) AS count
+		FROM form_ms f
+		JOIN document_ms d ON f.document_id = d.document_id
+		WHERE EXTRACT(YEAR FROM f.created_at) = $1
+		AND EXTRACT(MONTH FROM f.created_at) = $2
+		AND f.deleted_at IS NULL
+		GROUP BY d.document_name, EXTRACT(MONTH FROM f.created_at) 
+		ORDER BY d.document_name;
+    `
+
+	rows, err := db.Query(query, year, month)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var counts []models.MonthlyFormCount
+	for rows.Next() {
+		var count models.MonthlyFormCount
+		if err := rows.Scan(&count.DocumentName, &count.Month, &count.Count); err != nil {
+			log.Println("Error scanning row:", err)
+			return nil, err
+		}
+		counts = append(counts, count)
+	}
+
+	if counts == nil {
+		return []models.MonthlyFormCount{}, nil
+	}
+
+	return counts, nil
+}
+
+func GetFormCountPerDocumentPerMonthAdmin(db *sql.DB, year int, month int, divisionCode string) ([]models.MonthlyFormCount, error) {
+	query := `
+		SELECT 
+			d.document_name AS document_name, 
+			EXTRACT(MONTH FROM f.created_at) AS month,
+			COUNT(f.form_id) AS count
+		FROM form_ms f
+		JOIN document_ms d ON f.document_id = d.document_id
+		WHERE EXTRACT(YEAR FROM f.created_at) = $1
+		AND EXTRACT(MONTH FROM f.created_at) = $2
+		AND f.deleted_at IS NULL
+		AND SPLIT_PART(f.form_number, '/', 2) = $3
+		GROUP BY d.document_name, EXTRACT(MONTH FROM f.created_at) 
+		ORDER BY d.document_name;
+	`
+
+	rows, err := db.Query(query, year, month, divisionCode)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var counts []models.MonthlyFormCount
+	for rows.Next() {
+		var count models.MonthlyFormCount
+		if err := rows.Scan(&count.DocumentName, &count.Month, &count.Count); err != nil {
+			log.Println("Error scanning row:", err)
+			return nil, err
+		}
+		counts = append(counts, count)
+	}
+
+	if counts == nil {
+		return []models.MonthlyFormCount{}, nil
+	}
+
+	return counts, nil
+}

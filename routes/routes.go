@@ -168,10 +168,12 @@ func Route() *echo.Echo {
 	superAdmin.GET("/timeline/older", controller.GetOlderTimelineHistorySuperAdmin)
 	superAdmin.GET("/timeline/documents-per-month", controller.GetDocumentCountPerMonthSuperAdmin)
 	superAdmin.GET("/timeline/documents-status", controller.GetDocumentStatusCountPerMonthHandlerSuperAdmin)
+	superAdmin.GET("/timeline/forms/count-per-document", controller.GetFormCountPerDocumentPerMonthSuperAdmin)
 	adminGroup.GET("/timeline/recent", controller.GetRecentTimelineHistoryAdmin)
 	adminGroup.GET("/timeline/older", controller.GetOlderTimelineHistoryAdmin)
 	adminGroup.GET("/timeline/documents-per-month", controller.GetDocumentCountPerMonthAdmin)
 	adminGroup.GET("/timeline/documents-status", controller.GetDocumentStatusCountPerMonthHandlerAdmin)
+	adminGroup.GET("/timeline/forms/count-per-document", controller.GetFormCountPerDocumentPerMonthAdmin)
 
 	return e
 }

@@ -30,3 +30,9 @@ type DocumentStatusCount struct {
 	Status string `json:"status" db:"form_status"`
 	Count  int    `json:"count" db:"count"`
 }
+
+type MonthlyFormCount struct {
+	Month        string `json:"month" db:"month"`
+	DocumentName string `json:"document_name" db:"document_name"`
+	Count        int    `json:"count" db:"count"`
+}

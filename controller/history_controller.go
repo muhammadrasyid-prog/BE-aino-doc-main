@@ -717,3 +717,135 @@ func GetDocumentStatusCountPerMonthHandlerAdmin(c echo.Context) error {
 		"status": true,
 	})
 }
+
+func GetFormCountPerDocumentPerMonthSuperAdmin(c echo.Context) error {
+	// Ambil token dan periksa role
+	tokenString := c.Request().Header.Get("Authorization")
+
+	if tokenString == "" {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Token tidak ditemukan!",
+			"status":  false,
+		})
+	}
+
+	decrypted, err := DecryptJWE(strings.TrimPrefix(tokenString, "Bearer "), "secretJwToken")
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Token tidak valid!",
+			"status":  false,
+		})
+	}
+
+	var claims JwtCustomClaims
+	err = json.Unmarshal([]byte(decrypted), &claims)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Token tidak valid!",
+			"status":  false,
+		})
+	}
+
+	// Ambil tahun dari query parameter, default ke tahun sekarang
+	yearParam := c.QueryParam("year")
+	now := time.Now()
+	year := time.Now().Year()
+	month := int(now.Month())
+
+	if yearParam != "" {
+		parsedYear, err := strconv.Atoi(yearParam)
+		if err == nil && parsedYear > 0 {
+			year = parsedYear
+		}
+	}
+
+	// Ambil data jumlah formulir per dokumen per bulan dari service
+	counts, err := service.GetFormCountPerDocumentPerMonthSuperAdmin(db.DB, year, month)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"code":    500,
+			"message": "Gagal mengambil data jumlah formulir per dokumen per bulan",
+			"status":  false,
+		})
+	}
+
+	// Kembalikan data dalam response
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":   counts,
+		"status": true,
+	})
+}
+
+func GetFormCountPerDocumentPerMonthAdmin(c echo.Context) error {
+	// Ambil token dan periksa role
+	tokenString := c.Request().Header.Get("Authorization")
+
+	if tokenString == "" {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Token tidak ditemukan!",
+			"status":  false,
+		})
+	}
+
+	decrypted, err := DecryptJWE(strings.TrimPrefix(tokenString, "Bearer "), "secretJwToken")
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Token tidak valid!",
+			"status":  false,
+		})
+	}
+
+	var claims JwtCustomClaims
+	err = json.Unmarshal([]byte(decrypted), &claims)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Token tidak valid!",
+			"status":  false,
+		})
+	}
+
+	c.Set("division_code", claims.DivisionCode)
+	divisionCode, ok := c.Get("division_code").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    401,
+			"message": "Division Code tidak ditemukan!",
+			"status":  false,
+		})
+	}
+
+	// Ambil tahun dari query parameter, default ke tahun sekarang
+	yearParam := c.QueryParam("year")
+	now := time.Now()
+	year := time.Now().Year()
+	month := int(now.Month())
+
+	if yearParam != "" {
+		parsedYear, err := strconv.Atoi(yearParam)
+		if err == nil && parsedYear > 0 {
+			year = parsedYear
+		}
+	}
+
+	// Ambil data jumlah formulir per dokumen per bulan dari service
+	counts, err := service.GetFormCountPerDocumentPerMonthAdmin(db.DB, year, month, divisionCode)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"code":    500,
+			"message": "Gagal mengambil data jumlah formulir per dokumen per bulan",
+			"status":  false,
+		})
+	}
+
+	// Kembalikan data dalam response
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":   counts,
+		"status": true,
+	})
+}
